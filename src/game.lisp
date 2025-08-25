@@ -46,7 +46,7 @@
     (setf shot-count (if (> enemy-count 10) 5 enemy-count))
 
     (loop :for i :from 0 :below shot-count :do
-      (let ((enemy-pos (pos (nth i (enemies (hive game))))))
+      (let ((enemy-pos (pos (nth (random shot-count) (enemies (hive game))))))
         (push (make-instance 'shot :mine nil
                                    :shape "|"
                                    :pos (make-pos-2d :x-pos (pos-2d-x-pos enemy-pos) :y-pos (- (pos-2d-y-pos enemy-pos) 1)))
@@ -68,7 +68,7 @@
                (= (pos-2d-y-pos (pos (player game))) (pos-2d-y-pos (pos shot)))
                (not (mine shot)))
       (decf (hp shot))
-      (decf (hp (player game))))))
+      (setf (hp (player game)) (- (hp (player game)) (damage shot))))))
 
 (defmethod clean-game-field ((game game))
   (setf (enemies (hive game))

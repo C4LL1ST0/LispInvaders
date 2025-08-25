@@ -60,7 +60,7 @@
                     (you-won)
                     (return-from main-loop))
 
-                  (when (= (hp (player game)) 0)
+                  (when (< (hp (player game)) 1)
                     (you-were-defeated)
                     (return-from main-loop))
 
