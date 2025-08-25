@@ -10,7 +10,6 @@
    (shots :initform '() :accessor shots)))
 
 
-
 (defmethod insert-objects ((game game))
   (dotimes (i (array-total-size (screen game)))
     (setf (row-major-aref (screen game) i) " "))
@@ -40,16 +39,36 @@
                                                      :x-pos (pos-2d-x-pos(pos (player game)))))))
     (push shot (shots game))))
 
+(defmethod enemy-attack ((game game))
+  (sort (enemies (hive game)) #'< :key (lambda (enemy) (pos-2d-y-pos (pos enemy))))
+
+  (let ((enemy-count (length (enemies (hive game)))) (shot-count 0))
+    (setf shot-count (if (> enemy-count 10) 5 enemy-count))
+
+    (loop :for i :from 0 :below shot-count :do
+      (let ((enemy-pos (pos (nth i (enemies (hive game))))))
+        (push (make-instance 'shot :mine nil
+                                   :shape "|"
+                                   :pos (make-pos-2d :x-pos (pos-2d-x-pos enemy-pos) :y-pos (- (pos-2d-y-pos enemy-pos) 1)))
+              (shots game))))))
+
 (defmethod check-if-hit ((game game))
   (loop :for shot :in (shots game) :do
     (loop :for enemy :in (enemies (hive game)) :do
-      (when (and (= (pos-2d-x-pos (pos shot)) (pos-2d-x-pos (pos enemy)))
-                 (= (pos-2d-y-pos (pos shot)) (pos-2d-y-pos (pos enemy)))
+      (when (and (and (= (pos-2d-x-pos (pos shot)) (pos-2d-x-pos (pos enemy)))
+                      (= (pos-2d-y-pos (pos shot)) (pos-2d-y-pos (pos enemy))))
                  (mine shot))
+
         (decf (hp shot))
         (setf (hp enemy) (- (hp enemy) (damage shot)))
         (incf (score (player game)))
-        ))))
+        ))
+
+    (when (and (= (pos-2d-x-pos (pos (player game))) (pos-2d-x-pos (pos shot)))
+               (= (pos-2d-y-pos (pos (player game))) (pos-2d-y-pos (pos shot)))
+               (not (mine shot)))
+      (decf (hp shot))
+      (decf (hp (player game))))))
 
 (defmethod clean-game-field ((game game))
   (setf (enemies (hive game))

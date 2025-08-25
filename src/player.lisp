@@ -5,5 +5,5 @@
    (score :accessor score :initform 0))
   )
 
-(defmethod can-shoot ((now integer) (last-shooting-player integer))
+(defmethod can-player-shoot ((now integer) (last-shooting-player integer))
   (> (- now last-shooting-player) *ticks-per-second*))

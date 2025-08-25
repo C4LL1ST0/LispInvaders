@@ -2,26 +2,25 @@
 
 (defclass hive ()
   ((enemies :initarg :enemies :accessor enemies)
-   (going-left :initform t :accessor going-left))
-  )
-
+   (going-left :initform t :accessor going-left)
+   (can-shoot :initform nil :accessor can-shoot)))
 
 
 (defun make-enemy-list ()
-  (let ((height 17) (width 19) (enemy-count 30) (enemy-list '()))
+  (let ((height 15) (width 20) (enemy-count 40) (enemy-list '()))
+
     (loop :for i :from 0 :below enemy-count :do
       (push (make-instance 'enemy
                            :shape "O"
                            :pos (make-pos-2d :y-pos height :x-pos width)) enemy-list)
 
       (setf width (+ width 2))
-      (if (= width 29)
+      (if (> width 39)
           (progn
             (setf height (- height 2))
-            (setf width 19)))
-          )
-    enemy-list)
-  )
+            (setf width 20)
+            )))
+    enemy-list))
 
 
 (defmethod move-things ((hive hive))
@@ -47,4 +46,3 @@
     (loop :for enemy :in (enemies hive) :do
       (incf (pos-2d-x-pos (pos enemy)))))
   )
-

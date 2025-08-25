@@ -4,6 +4,7 @@
 (defconstant screen-width 50)
 
 (defparameter *ticks-per-second* internal-time-units-per-second)
+(setf *random-state* (make-random-state t))
 
 (defgeneric move-things (things))
 (defgeneric print-game-screen (game))
@@ -12,6 +13,7 @@
 (defgeneric check-if-hit (game))
 (defgeneric clean-game-field (game))
 (defgeneric print-status-bar (game))
+(defgeneric enemy-attack (game))
 
 (defun main ()
   (let ((game (make-instance 'game))
@@ -40,7 +42,7 @@
                              (unless (= (pos-2d-x-pos (pos (player game))) (- screen-width 1))
                                (incf (pos-2d-x-pos (pos (player game)))))))
 
-                    ((#\Space) (when (can-shoot now last-shooting-player)
+                    ((#\Space) (when (can-player-shoot now last-shooting-player)
                                  (shoot game)
                                  (setf last-shooting-player now)))
 
@@ -50,18 +52,28 @@
                   (check-if-hit game)
                   (clean-game-field game)
 
-                  (when (> (- now last-shots-move-time) (/ *ticks-per-second* 3))
+                  (when (some (lambda (enemy) (= (pos-2d-y-pos (pos enemy)) 0)) (enemies (hive game)))
+                    (you-were-defeated)
+                    (return-from main-loop))
+
+                  (when (= (length (enemies (hive game))) 0)
+                    (you-won)
+                    (return-from main-loop))
+
+                  (when (= (hp (player game)) 0)
+                    (you-were-defeated)
+                    (return-from main-loop))
+
+                  (when (> (- now last-shots-move-time) (/ *ticks-per-second* 5))
                     (setf (shots game) (move-things (shots game)))
                     (setf last-shots-move-time now))
 
-                  (when (> (- now last-enemy-move-time) (/ *ticks-per-second* 2))
+                  (when (> (- now last-enemy-move-time) (/ *ticks-per-second* 4))
                     (move-things (hive game))
+                    (if (= (random 22) 1) (enemy-attack game))
                     (setf last-enemy-move-time now))
 
                   (charms:clear-window charms:*standard-window*)
                   (print-game-screen game)
                   (print-status-bar game)
-                  (sleep 0.05)
-                  )))
-    )
-  )
+                  (sleep 0.05))))))
