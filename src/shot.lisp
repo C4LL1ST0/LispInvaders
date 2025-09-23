@@ -1,4 +1,4 @@
-(in-package #:proj1)
+(in-package #:default)
 
 (defclass shot (game-object)
   ((damage :initarg :damage :initform 1 :accessor damage)

@@ -1,4 +1,4 @@
-(in-package #:proj1)
+(in-package #:default)
 
 (defclass hive ()
   ((enemies :initarg :enemies :accessor enemies)

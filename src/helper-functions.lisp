@@ -1,4 +1,4 @@
-(in-package #:proj1)
+(in-package #:default)
 
 (defun you-were-defeated ()
   (charms:clear-window charms:*standard-window*)

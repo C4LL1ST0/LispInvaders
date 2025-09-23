@@ -1,7 +1,8 @@
-(uiop:define-package proj1
+(uiop:define-package default
   (:use #:cl #:cl-charms)
-  (:export #:main))
-(in-package #:proj1)
+  ;;(:import-from :online-operations :*logged-user*)
+  (:export #:main #:call-move-left #:call-move-right #:call-player-shoot))
+(in-package #:default)
 
 (defstruct pos-2d
   x-pos

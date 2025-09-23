@@ -1,4 +1,4 @@
-(in-package #:proj1)
+(in-package #:default)
 
 (defconstant screen-height 18)
 (defconstant screen-width 50)
@@ -23,6 +23,13 @@
 
     (setf (enemies (hive game)) (make-enemy-list))
 
+    (defun call-move-left () (move-left (player game)) nil)
+    (defun call-move-right () (move-right (player game)) nil)
+    (defun call-player-shoot ()
+      (if (player-shoot game (get-internal-real-time) last-shooting-player)
+          (setf last-shooting-player (get-internal-real-time))) nil)
+
+
     (charms:with-curses ()
       (charms:disable-echoing)
       (charms:enable-raw-input :interpret-control-characters t)
@@ -34,19 +41,16 @@
             :do (progn
                   (case c
                     ((nil) nil)
-                    ((#\a) (progn
-                             (unless (= (pos-2d-x-pos (pos (player game))) 0)
-                               (decf (pos-2d-x-pos (pos (player game)))))))
+                    ((#\a) (call-move-left))
 
-                    ((#\d) (progn
-                             (unless (= (pos-2d-x-pos (pos (player game))) (- screen-width 1))
-                               (incf (pos-2d-x-pos (pos (player game)))))))
+                    ((#\d) (call-move-right))
 
-                    ((#\Space) (when (can-player-shoot now last-shooting-player)
-                                 (shoot game)
-                                 (setf last-shooting-player now)))
+                    ((#\Space) (call-player-shoot))
 
-                    ((#\q #\Q) (return-from main-loop)))
+                    ((#\q #\Q) (progn
+                                 (online-operations:end-screen-sending)
+                                 (return-from main-loop)
+                                 (sleep 0.2))))
 
 
                   (check-if-hit game)
@@ -58,20 +62,24 @@
 
                   (when (= (length (enemies (hive game))) 0)
                     (you-won)
-                    (return-from main-loop))
+                    (main))
 
                   (when (< (hp (player game)) 1)
                     (you-were-defeated)
-                    (return-from main-loop))
+                    (main))
 
                   (when (> (- now last-shots-move-time) (/ *ticks-per-second* 5))
                     (setf (shots game) (move-things (shots game)))
                     (setf last-shots-move-time now))
 
+
                   (when (> (- now last-enemy-move-time) (/ *ticks-per-second* 4))
                     (move-things (hive game))
                     (if (= (random 22) 1) (enemy-attack game))
                     (setf last-enemy-move-time now))
+
+                  (when (boundp 'online-operations::*logged-user*)
+                    (online-operations:send-screen (screen game)))
 
                   (charms:clear-window charms:*standard-window*)
                   (print-game-screen game)

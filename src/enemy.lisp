@@ -1,3 +1,3 @@
-(in-package #:proj1)
+(in-package #:default)
 
 (defclass enemy (game-object) ())
