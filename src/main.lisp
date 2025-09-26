@@ -78,8 +78,8 @@
                     (if (= (random 22) 1) (enemy-attack game))
                     (setf last-enemy-move-time now))
 
-                  (when (boundp 'online-operations::*logged-user*)
-                    (online-operations:send-screen (screen game)))
+                  (when (boundp 'online-operations:*logged-user*)
+                    (ignore-errors (online-operations:send-screen (screen game))))
 
                   (charms:clear-window charms:*standard-window*)
                   (print-game-screen game)
