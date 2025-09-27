@@ -2,7 +2,7 @@
   (:use :cl #:easy-routes)
   (:import-from :usocket #:socket-connect #:socket-send)
   (:import-from :com.inuoe.jzon #:stringify #:parse)
-  (:export #:send-screen #:end-screen-sending :*logged-user*))
+  (:export #:send-screen #:end-screen-sending :*logged-user* #:start-http-server))
 (in-package #:online-operations)
 
 (defstruct client
@@ -38,7 +38,8 @@
 
 (defvar *acceptor* (make-instance 'easy-routes:routes-acceptor :port 3001))
 
-(hunchentoot:start *acceptor*)
+(defun start-http-server ()
+  (hunchentoot:start *acceptor*))
 
 (defroute move-left ("/move-left" :method :put) ()
   (default:call-move-left))

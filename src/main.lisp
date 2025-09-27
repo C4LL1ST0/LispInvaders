@@ -23,6 +23,8 @@
 
     (setf (enemies (hive game)) (make-enemy-list))
 
+    (online-operations:start-http-server)
+
     (defun call-move-left () (move-left (player game)) nil)
     (defun call-move-right () (move-right (player game)) nil)
     (defun call-player-shoot ()
