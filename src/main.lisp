@@ -32,58 +32,36 @@
           (setf last-shooting-player (get-internal-real-time))) nil)
 
 
-    (charms:with-curses ()
-      (charms:disable-echoing)
-      (charms:enable-raw-input :interpret-control-characters t)
-      (charms:enable-non-blocking-mode charms:*standard-window*)
+    (loop :named main-loop
+          :for now := (get-internal-real-time)
+          :do (progn
+                (check-if-hit game)
+                (clean-game-field game)
 
-      (loop :named main-loop
-            :for now := (get-internal-real-time)
-            :for c := (charms:get-char charms:*standard-window* :ignore-error t)
-            :do (progn
-                  (case c
-                    ((nil) nil)
-                    ((#\a) (call-move-left))
+                (when (some (lambda (enemy) (= (pos-2d-y-pos (pos enemy)) 0)) (enemies (hive game)))
+                  (you-were-defeated)
+                  (main))
 
-                    ((#\d) (call-move-right))
+                (when (= (length (enemies (hive game))) 0)
+                  (you-won)
+                  (main))
 
-                    ((#\Space) (call-player-shoot))
+                (when (< (hp (player game)) 1)
+                  (you-were-defeated)
+                  (main))
 
-                    ((#\q #\Q) (progn
-                                 (online-operations:end-screen-sending)
-                                 (return-from main-loop)
-                                 (sleep 0.2))))
-
-
-                  (check-if-hit game)
-                  (clean-game-field game)
-
-                  (when (some (lambda (enemy) (= (pos-2d-y-pos (pos enemy)) 0)) (enemies (hive game)))
-                    (you-were-defeated)
-                    (return-from main-loop))
-
-                  (when (= (length (enemies (hive game))) 0)
-                    (you-won)
-                    (main))
-
-                  (when (< (hp (player game)) 1)
-                    (you-were-defeated)
-                    (main))
-
-                  (when (> (- now last-shots-move-time) (/ *ticks-per-second* 5))
-                    (setf (shots game) (move-things (shots game)))
-                    (setf last-shots-move-time now))
+                (when (> (- now last-shots-move-time) (/ *ticks-per-second* 5))
+                  (setf (shots game) (move-things (shots game)))
+                  (setf last-shots-move-time now))
 
 
-                  (when (> (- now last-enemy-move-time) (/ *ticks-per-second* 4))
-                    (move-things (hive game))
-                    (if (= (random 22) 1) (enemy-attack game))
-                    (setf last-enemy-move-time now))
+                (when (> (- now last-enemy-move-time) (/ *ticks-per-second* 4))
+                  (move-things (hive game))
+                  (if (= (random 22) 1) (enemy-attack game))
+                  (setf last-enemy-move-time now))
 
-                  (when (boundp 'online-operations:*logged-user*)
-                    (ignore-errors (online-operations:send-screen (screen game))))
+                (when (boundp 'online-operations:*logged-user*)
+                  (ignore-errors (online-operations:send-screen (screen game))))
 
-                  (charms:clear-window charms:*standard-window*)
-                  (print-game-screen game)
-                  (print-status-bar game)
-                  (sleep 0.05))))))
+                (insert-objects game)
+                (sleep 0.05)))))

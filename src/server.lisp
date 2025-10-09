@@ -14,7 +14,8 @@
 
 (defun end-screen-sending ()
   (when (boundp '*socket*)
-    (usocket:socket-close *socket*)))
+    (usocket:socket-close *socket*)
+    (sleep 0.1)))
 
 (defun make-socket ()
   (usocket:socket-connect (client-ipa *logged-user*) (client-port *logged-user*)
@@ -39,7 +40,8 @@
 (defvar *acceptor* (make-instance 'easy-routes:routes-acceptor :port 3001))
 
 (defun start-http-server ()
-  (hunchentoot:start *acceptor*))
+  (unless (hunchentoot:started-p *acceptor*)
+    (hunchentoot:start *acceptor*)))
 
 (defroute move-left ("/move-left" :method :put) ()
   (default:call-move-left))

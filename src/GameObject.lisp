@@ -1,6 +1,5 @@
 (uiop:define-package default
-  (:use #:cl #:cl-charms)
-  ;;(:import-from :online-operations :*logged-user*)
+  (:use #:cl)
   (:export #:main #:call-move-left #:call-move-right #:call-player-shoot))
 (in-package #:default)
 

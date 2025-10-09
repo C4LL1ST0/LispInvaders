@@ -25,14 +25,6 @@
     (setf (aref (screen game) (pos-2d-y-pos (pos shot)) (pos-2d-x-pos (pos shot)))
           (shape shot))))
 
-
-(defmethod print-game-screen ((game game))
-  (insert-objects game)
-  (dotimes (y 18)
-    (dotimes (x 50)
-      (charms:write-string-at-point charms:*standard-window* (aref (screen game) y x) x y)))
-  (charms:refresh-window charms:*standard-window*))
-
 (defmethod shoot ((game game))
   (let ((shot (make-instance 'shot :shape "|"
                                    :pos (make-pos-2d :y-pos 1
@@ -75,18 +67,4 @@
         (remove-if (lambda (enemy) (= (hp enemy) 0)) (enemies (hive game))))
   (setf (shots game)
         (remove-if (lambda (shot) (= (hp shot) 0)) (shots game)))
-  )
-
-(defmethod print-status-bar ((game game))
-  (charms:write-string-at-point charms:*standard-window*
-                                (concatenate 'string
-                                             "score: "
-                                             (write-to-string (score (player game))))
-                                0 screen-height)
-  (charms:write-string-at-point charms:*standard-window*
-                                (concatenate 'string
-                                             "hp: "
-                                             (write-to-string (hp (player game))))
-                                0 (+ screen-height 1))
-  (charms:refresh-window charms:*standard-window*)
   )

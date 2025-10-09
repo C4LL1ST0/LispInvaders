@@ -2,7 +2,7 @@
   :version "0.0.1"
   :author "Štěpán Bílek"
   :license ""
-  :depends-on (#:cl-charms #:com.inuoe.jzon #:usocket #:easy-routes #:hunchentoot)
+  :depends-on (#:com.inuoe.jzon #:usocket #:easy-routes #:hunchentoot)
   :components ((:module "src"
                 :serial t
                 :components
